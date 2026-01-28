@@ -1,0 +1,219 @@
+/**
+ * Post Editor Styles
+ * Handles responsive and fixed-width layouts for post editor
+ */
+
+.featured-image-preview {
+    width: 100%;
+    max-width: 320px;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-border, #e5e7eb);
+    overflow: hidden;
+    background-color: #f3f4f6;
+}
+
+.featured-image-preview img {
+    display: block;
+    width: 100%;
+    height: 128px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.featured-image-preview:hover img {
+    opacity: 0.75;
+    transition: opacity 150ms ease-in-out;
+}
+
+/* Media modal styles */
+.media-modal {
+    display: none;
+    position: fixed;
+    z-index: 50;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.media-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-modal-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    width: 90%;
+    max-width: 900px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.media-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.media-modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.media-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    transition: color 150ms ease-in-out;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-modal-close:hover {
+    color: #111827;
+}
+
+/* Upload section */
+.media-upload-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #f9fafb;
+    border: 2px dashed #d1d5db;
+    border-radius: 0.5rem;
+}
+
+.media-upload-section input[type="file"] {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.media-upload-section p {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Media grid */
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.media-grid-item {
+    position: relative;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    background-color: #f3f4f6;
+    aspect-ratio: 1;
+    border: 2px solid transparent;
+    transition: border-color 150ms ease-in-out;
+}
+
+.media-grid-item:hover {
+    border-color: #3b82f6;
+}
+
+.media-grid-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.media-grid-item-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 150ms ease-in-out;
+}
+
+.media-grid-item:hover .media-grid-item-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.media-grid-item-action {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 150ms ease-in-out;
+}
+
+.media-grid-item:hover .media-grid-item-action {
+    opacity: 1;
+}
+
+.media-grid-item-action:hover {
+    background-color: #2563eb;
+}
+
+/* Auto-save notification */
+#auto-save-notification {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background-color: #d1fae5;
+    color: #065f46;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    z-index: 40;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: slideIn 300ms ease-in-out;
+}
+
+#auto-save-notification.hidden {
+    display: none;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .media-modal-content {
+        width: 95%;
+        padding: 1rem;
+    }
+
+    .media-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.75rem;
+    }
+}
