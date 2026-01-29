@@ -26,6 +26,7 @@ class MediaController extends \App\Http\Controllers\Controller
     {
         $query = Media::forUser(auth()->id())->recent();
 
+        
         if ($request->filled('folder')) {
             $query->byFolder($request->query('folder'));
         }
