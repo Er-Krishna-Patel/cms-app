@@ -4,6 +4,7 @@
     <div class="flex h-screen" x-data="{
         viewMode: 'grid',
         selectedMedia: null,
+        selectedItems: new Set(),
         searchTerm: '',
         selectedType: '',
         uploadingFiles: [],
@@ -39,6 +40,44 @@
                 return matchesSearch && matchesType;
             });
         },
+        toggleSelect(itemId) {
+            if (this.selectedItems.has(itemId)) {
+                this.selectedItems.delete(itemId);
+            } else {
+                this.selectedItems.add(itemId);
+            }
+        },
+        selectAll() {
+            this.filteredMedia.forEach(item => this.selectedItems.add(item.id));
+        },
+        clearSelection() {
+            this.selectedItems.clear();
+        },
+        bulkDelete() {
+            if (this.selectedItems.size === 0 || !confirm(`Delete ${this.selectedItems.size} item(s)?`)) return;
+            
+            const ids = Array.from(this.selectedItems);
+            const token = document.querySelector('meta[name=\"csrf-token\"]')?.content;
+            
+            fetch('{{ route("admin.media.bulk-delete") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token
+                },
+                body: JSON.stringify({ ids })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    this.allMedia = this.allMedia.filter(m => !ids.includes(m.id));
+                    this.selectedItems.clear();
+                    this.uploadMessage = `Deleted ${data.deleted} item(s)`;
+                    this.uploadError = false;
+                    setTimeout(() => this.uploadMessage = '', 3000);
+                }
+            });
+        },
         getFileIcon(type) {
             const icons = {
                 'video': '🎬',
@@ -65,10 +104,23 @@
                             </path>
                         </svg>
                         <span>Upload Files</span>
-                        {{-- <input type="file" multiple hidden @change="window.handleUpload($event)" accept="*/*"> --}}
                         <input type="file" multiple hidden accept="image/*" onchange="previewImages(event)">
-
                     </label>
+
+                    <!-- Bulk Actions -->
+                    <template x-if="selectedItems.size > 0">
+                        <div class="flex gap-2 items-center px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+                            <span class="text-sm font-medium text-amber-900" x-text="`${selectedItems.size} selected`"></span>
+                            <button @click="selectAll()" class="text-sm text-amber-600 hover:text-amber-700 font-medium">All</button>
+                            <button @click="clearSelection()" class="text-sm text-amber-600 hover:text-amber-700 font-medium">Clear</button>
+                            <button @click="bulkDelete()" class="ml-auto text-sm text-red-600 hover:text-red-700 font-medium flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                    </template>
 
                     <!-- Preview uploaded image -->
                     <div id="upload-preview" class="mt-3 h-28 overflow-hidden">
@@ -168,6 +220,15 @@
                         <div @click="selectedMedia = item.id"
                             :class="selectedMedia === item.id ? 'ring-4 ring-blue-500 ring-opacity-50' : ''"
                             class="relative aspect-square bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl cursor-pointer transition-all duration-200 group">
+                            
+                            <!-- Checkbox -->
+                            <div class="absolute top-2 left-2 z-10" @click.stop="toggleSelect(item.id)">
+                                <div :class="selectedItems.has(item.id) ? 'bg-blue-600' : 'bg-white border-2 border-gray-300'" 
+                                    class="w-5 h-5 rounded flex items-center justify-center transition hover:scale-110">
+                                    <span x-show="selectedItems.has(item.id)" class="text-white text-xs font-bold">✓</span>
+                                </div>
+                            </div>
+
                             <template x-if="item.is_image">
                                 <img :src="item.thumb_url" :alt="item.name" loading="lazy" width="300"
                                     height="300"
@@ -195,6 +256,15 @@
                             :class="selectedMedia === item.id ? 'bg-blue-50 border-blue-500 shadow-md' :
                                 'border-gray-200 hover:bg-gray-50'"
                             class="flex items-center gap-4 p-3 bg-white rounded-lg border cursor-pointer transition-all">
+                            
+                            <!-- Checkbox -->
+                            <div @click.stop="toggleSelect(item.id)" class="flex-shrink-0">
+                                <div :class="selectedItems.has(item.id) ? 'bg-blue-600' : 'bg-white border-2 border-gray-300'" 
+                                    class="w-5 h-5 rounded flex items-center justify-center transition hover:scale-110">
+                                    <span x-show="selectedItems.has(item.id)" class="text-white text-xs font-bold">✓</span>
+                                </div>
+                            </div>
+
                             <div
                                 class="w-14 h-14 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
                                 <template x-if="item.is_image">
