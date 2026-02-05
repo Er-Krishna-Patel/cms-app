@@ -26,6 +26,7 @@ class MediaController extends \App\Http\Controllers\Controller
     {
         $query = Media::forUser(auth()->id())->recent();
 
+        
         if ($request->filled('folder')) {
             $query->byFolder($request->query('folder'));
         }
@@ -299,6 +300,33 @@ class MediaController extends \App\Http\Controllers\Controller
         }
 
         return response()->json(['error' => 'Upload failed'], 422);
+    }
+
+    /**
+     * Bulk delete media items
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:media,id',
+        ]);
+
+        $deleted = 0;
+        foreach ($request->ids as $id) {
+            $media = Media::find($id);
+            if ($media && $media->user_id === auth()->id() || auth()->user()->role === 'admin') {
+                $media->delete(); // Model will handle file deletion
+                $deleted++;
+                ActivityLog::log('deleted', 'Media', $id, "Bulk delete: {$media->original_name}");
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'deleted' => $deleted,
+            'message' => "$deleted item(s) deleted successfully"
+        ]);
     }
 
     /**

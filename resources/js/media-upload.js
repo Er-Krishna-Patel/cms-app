@@ -180,3 +180,22 @@ function getFileIcon(type) {
 function truncate(str, length) {
     return str.length > length ? str.substring(0, length) + '...' : str;
 }
+
+
+    function previewImages(event) {
+        const container = document.querySelector('#upload-preview > div');
+        container.innerHTML = '';
+
+        Array.from(event.target.files).forEach(file => {
+            if (!file.type.startsWith('image/')) return;
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'w-20 h-20 object-cover rounded-md border shadow-sm';
+                container.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
